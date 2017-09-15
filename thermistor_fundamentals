@@ -1,0 +1,25 @@
+//Arduinoのコードで動作する100kΩのサーミスタで温度を測るためのコードです。10μFのコンデンサーで電流安定を図ってます。
+//100kΩサーミスタ、4.7kオームの抵抗、ブレッドボード、Arduinoがあれば動かすことができます。3Dプリンターのハード準拠です。
+
+void setup(){
+  Serial.begin(9600);
+}
+
+void loop() {
+  Serial.println(calcTemp(analogRead(13)));
+  Serial.println("");
+  delay(1000);
+}
+
+// for thermistor NXFT15XH103FA2B
+float B=4085;//サーミスタの感度の定数。データシートなどに必ず載っている。
+float T0=298.15;//サーミスタの基準温度（絶対温度）
+float R0=100;//サーミスタの摂氏25℃時の抵抗値
+float R1=4.7;//プルアップの抵抗値（kΩ）。3Dプリンター一般用。
+
+int calcTemp(int raw) {
+  float rr1,t;
+  rr1 = ((R1 * raw) / (1024.0 - raw));//サーミスタの抵抗を、1024段階の検出電圧から逆算する。
+  t = 1 / (log(rr1 / R0) / B + (1 / T0));
+  return (float)(t - 273.15) ; //unit 1 degree;
+}
